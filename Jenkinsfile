@@ -25,9 +25,8 @@ pipeline {
                     checkout scm
 
                     // Change directory to 'demo' for Maven build
-                    dir('demo') {
-                        sh 'mvn clean package'
-                    }
+                    sh 'mvn clean package'
+
 
                     // Securely handling Docker login
                     withCredentials([usernamePassword(credentialsId: 'docker-pass',
