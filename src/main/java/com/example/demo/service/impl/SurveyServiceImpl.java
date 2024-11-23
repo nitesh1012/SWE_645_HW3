@@ -35,7 +35,7 @@ public class SurveyServiceImpl implements SurveyService {
     @Override
     public Survey updateSurvey(Survey survey, Long id) {
         return surveyRepository.findById(id).map(existingSurvey -> {
-            // Copy data from `survey` to `existingSurvey`
+            // Copying data from `survey` to `existingSurvey`
             existingSurvey.setFirstName(survey.getFirstName());
             existingSurvey.setLastName(survey.getLastName());
             existingSurvey.setStreetAddress(survey.getStreetAddress());

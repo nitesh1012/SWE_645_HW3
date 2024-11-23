@@ -179,7 +179,7 @@ public class Survey {
 
     // Getters and setters (not shown here for brevity)
 
-    // toString method for logging and debugging
+
     @Override
     public String toString() {
         return "Survey{" +

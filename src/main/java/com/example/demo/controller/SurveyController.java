@@ -17,35 +17,35 @@ public class SurveyController {
     @Autowired
     private SurveyService surveyService;
 
-    // Create a new survey
+    // Creating a new survey
     @PostMapping
     public ResponseEntity<Survey> createSurvey(@RequestBody Survey survey) {
         Survey savedSurvey = surveyService.saveSurvey(survey);
         return new ResponseEntity<>(savedSurvey, HttpStatus.CREATED);
     }
 
-    // Get all surveys
+    // Getting all surveys
     @GetMapping
     public ResponseEntity<List<Survey>> getAllSurveys() {
         List<Survey> surveys = surveyService.getAllSurveys();
         return new ResponseEntity<>(surveys, HttpStatus.OK);
     }
 
-    // Get a survey by ID
+    // Getting a survey by ID
     @GetMapping("/{id}")
     public ResponseEntity<Survey> getSurveyById(@PathVariable("id") Long id) {
         Survey survey = surveyService.getSurveyById(id);
         return new ResponseEntity<>(survey, HttpStatus.OK);
     }
 
-    // Update a survey by ID
+    // Updating a survey by ID
     @PutMapping("/{id}")
     public ResponseEntity<Survey> updateSurvey(@PathVariable("id") Long id, @RequestBody Survey survey) {
         Survey updatedSurvey = surveyService.updateSurvey(survey, id);
         return new ResponseEntity<>(updatedSurvey, HttpStatus.OK);
     }
 
-    // Delete a survey by ID
+    // Deleting a survey by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSurvey(@PathVariable("id") Long id) {
         surveyService.deleteSurvey(id);
