@@ -12,7 +12,7 @@ import java.util.List;
 
 
 @RestController
-@CrossOrigin("http://localhost:8081")
+@CrossOrigin("http://ec2-3-226-121-227.compute-1.amazonaws.com:32178/")
 @RequestMapping("/api/surveys")
 public class SurveyController {
     @Autowired
