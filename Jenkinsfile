@@ -1,34 +1,74 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven3.9.9'
+        maven 'Maven3.9.9' // Your configured Maven tool
+        nodejs 'NodeJS16'  // Use the configured NodeJS tool in Jenkins
     }
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker-pass') // Docker credentials added to Jenkins and names the set as docker-pass
+        DOCKERHUB_CREDENTIALS = credentials('docker-pass') // Docker credentials
+        GITHUB_CREDENTIALS = credentials('mygithubcred')   // GitHub credentials
     }
     stages {
-        stage('Initialize') {
+        stage('Clone Repositories') {
             steps {
                 script {
-                    // Defining a build timestamp variable
-                    env.BUILD_TIMESTAMP = new Date().format("yyyyMMddHHmmss", TimeZone.getTimeZone('UTC'))
-                    echo "Build timestamp: ${env.BUILD_TIMESTAMP}"
+                    // Clone frontend repository
+                    dir('frontend') {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: '*/main']],
+                            userRemoteConfigs: [[
+                                url: 'https://github.com/nitesh1012/SWE645_VUE_FRONTEND.git',
+                                credentialsId: 'mygithubcred'
+                            ]]
+                        ])
+                    }
+
+                    // Clone backend repository
+                    dir('backend') {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: '*/main']],
+                            userRemoteConfigs: [[
+                                url: 'https://github.com/nitesh1012/SWE_645_HW3.git',
+                                credentialsId: 'mygithubcred'
+                            ]]
+                        ])
+                    }
                 }
             }
         }
 
-
-        stage('Building the Application Image') {
+        stage('Build Frontend') {
             steps {
                 script {
-                    // Checkout SCM
-                    checkout scm
+                    // Build the frontend project
+                    dir('frontend') {
+                        sh 'npm install'
+                        sh 'npm run build'
+                    }
 
-                    // Change directory to 'demo' for Maven build
-                    sh 'mvn clean package'
+                    // Copy frontend build to backend static folder
+                    sh 'cp -r frontend/dist/* backend/src/main/resources/static/'
+                }
+            }
+        }
 
+        stage('Build Backend') {
+            steps {
+                script {
+                    // Build the backend project
+                    dir('backend') {
+                        sh 'mvn clean package'
+                    }
+                }
+            }
+        }
 
-                    // Securely handling Docker login
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Securely handle Docker login
                     withCredentials([usernamePassword(credentialsId: 'docker-pass',
                                                       usernameVariable: 'DOCKER_USER',
                                                       passwordVariable: 'DOCKER_PASS')]) {
@@ -37,30 +77,29 @@ pipeline {
                         """
                     }
 
-                    // Building Docker image using the BUILD_TIMESTAMP
-                    def imageName = "nthota2/hw3-app:${env.BUILD_TIMESTAMP}"
+                    // Build a unified Docker image with both frontend and backend
+                    def imageName = "nthota2/unified-backend:${env.BUILD_TIMESTAMP}"
                     sh "docker build -t ${imageName} ."
 
-                    // Saving image name for later stages
+                    // Save the image name for later stages
                     env.IMAGE_NAME = imageName
                 }
             }
         }
 
-
-        stage('Pushing Image to DockerHub') {
+        stage('Push Image to DockerHub') {
             steps {
                 script {
-                    // Pushing the Docker image to DockerHub
+                    // Push the Docker image to DockerHub
                     sh "docker push ${env.IMAGE_NAME}"
                 }
             }
         }
 
-        stage('Deploying to Rancher') {
+        stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Deploying the new image to Rancher
+                    // Deploy the new image to Kubernetes
                     sh "kubectl set image deployment/hw3-app-deployment container-0=${env.IMAGE_NAME}"
                 }
             }
