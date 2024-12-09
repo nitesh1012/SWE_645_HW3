@@ -9,6 +9,18 @@ pipeline {
         GITHUB_CREDENTIALS = credentials('mygithubcred')   // GitHub credentials
     }
     stages {
+
+
+        stage('Initialize') {
+                    steps {
+                        script {
+                            // Define a build timestamp (valid for Docker tags)
+                            env.BUILD_TIMESTAMP = new Date().format("yyyyMMddHHmmss", TimeZone.getTimeZone('UTC'))
+                            echo "Build timestamp: ${env.BUILD_TIMESTAMP}"
+                        }
+                    }
+        }
+
         stage('Clone Repositories') {
             steps {
                 script {
@@ -100,7 +112,7 @@ pipeline {
             steps {
                 script {
                     // Deploy the new image to Kubernetes
-                    sh "kubectl set image deployment/hw3-app-deployment container-0=${env.IMAGE_NAME}"
+                    sh "kubectl set image deployment/extra-credit-deployment container-0=${env.IMAGE_NAME}"
                 }
             }
         }
