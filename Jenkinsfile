@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven3.9.9' // Your configured Maven tool
+        maven 'Maven 3.9.9' // Your configured Maven tool
         nodejs 'NodeJS16'  // Use the configured NodeJS tool in Jenkins
     }
     environment {
