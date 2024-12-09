@@ -112,7 +112,7 @@ pipeline {
             steps {
                 script {
                     // Deploy the new image to Kubernetes
-                    sh "kubectl set image deployment/extra-credit-deployment container-0=${env.IMAGE_NAME}"
+                    sh "kubectl set image deployment/extra-credit-deployment container-0=${env.IMAGE_NAME} -n dev"
                 }
             }
         }
